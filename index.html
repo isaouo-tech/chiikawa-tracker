@@ -22,7 +22,7 @@
       --status-arrived: #48C78E;
     }
 
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -56,6 +56,7 @@
       align-items: center;
       min-height: 100vh;
       overflow-x: hidden;
+      width: 100%;
     }
 
     header {
@@ -96,7 +97,7 @@
       gap: 18px;
     }
 
-    /* 表單區塊 */
+    /* 表單區塊 - 修正防止溢出 */
     .form-card {
       background: var(--card-bg);
       border-radius: 22px;
@@ -104,6 +105,8 @@
       box-shadow: 0 8px 24px rgba(83, 51, 43, 0.1);
       border: 2px solid var(--border-color);
       position: relative;
+      width: 100%;
+      overflow: hidden; /* 防止內容爆框 */
     }
 
     .izakaya-deco {
@@ -127,12 +130,15 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 14px;
+      width: 100%;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 5px;
+      width: 100%;
+      min-width: 0; /* 關鍵：避免 Grid 內元件撐開破版 */
     }
 
     .form-group.full-width {
@@ -145,9 +151,12 @@
       color: var(--marron-dark);
     }
 
+    /* 關鍵修復：嚴格鎖定寬度 100% 與 box-sizing */
     .form-group input,
     .form-group select,
     .form-group textarea {
+      width: 100%;
+      max-width: 100%;
       padding: 11px 12px;
       border: 1.5px solid var(--border-color);
       border-radius: 12px;
@@ -188,6 +197,7 @@
 
     .submit-btn {
       grid-column: 1 / -1;
+      width: 100%;
       margin-top: 6px;
       padding: 13px;
       background: linear-gradient(135deg, var(--beer-gold), var(--beer-deep));
@@ -216,6 +226,7 @@
       border-radius: 16px;
       border: 1.5px solid var(--border-color);
       box-shadow: 0 4px 12px rgba(83, 51, 43, 0.08);
+      width: 100%;
     }
 
     .stats {
@@ -246,6 +257,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 18px;
+      width: 100%;
     }
 
     .item-card {
@@ -258,6 +270,7 @@
       flex-direction: column;
       transform: translate3d(0, 0, 0);
       contain: paint;
+      width: 100%;
     }
 
     /* 圖片輪播滑動區塊 */
@@ -303,6 +316,7 @@
       flex-direction: column;
       gap: 8px;
       flex-grow: 1;
+      width: 100%;
     }
 
     .item-name {
@@ -373,6 +387,7 @@
       flex-direction: column;
       gap: 8px;
       padding: 4px 0;
+      width: 100%;
     }
 
     .edit-mode-form label {
@@ -384,6 +399,7 @@
     .edit-mode-form input,
     .edit-mode-form select,
     .edit-mode-form textarea {
+      width: 100%;
       padding: 8px 10px;
       border: 1.5px solid var(--beer-gold);
       border-radius: 8px;
@@ -398,12 +414,12 @@
       min-height: 50px;
     }
 
-    /* 縮圖預覽列 */
     .edit-thumb-list {
       display: flex;
       gap: 6px;
       overflow-x: auto;
       padding: 6px 0;
+      width: 100%;
     }
 
     .edit-thumb-wrapper {
@@ -445,6 +461,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 8px;
+      width: 100%;
     }
 
     .btn-edit-item, .delete-btn {
@@ -473,6 +490,7 @@
       opacity: 0.75;
     }
 
+    /* 手機畫面尺寸優化 (寬度 < 600px) */
     @media (max-width: 600px) {
       body {
         padding: 16px 10px 36px;
@@ -483,8 +501,9 @@
       }
 
       .form-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* 手機上一律單欄 */
         gap: 10px;
+        width: 100%;
       }
 
       .form-card {
@@ -501,7 +520,7 @@
 </head>
 <body>
 
-  <!-- 獨立背景層：硬體加速解決滑動閃爍 -->
+  <!-- 獨立背景層 -->
   <div id="bg-layer"></div>
 
   <header>
@@ -637,7 +656,7 @@
       this.reset();
     });
 
-    // 壓縮相片為 Base64 (提升滾動流暢度)
+    // 壓縮相片為 Base64
     function readFileAsBase64(file) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -767,7 +786,6 @@
         const card = document.createElement('div');
         card.className = 'item-card';
 
-        // 輪播 / 多圖瀏覽區塊
         const imgHtml = `
           <div class="image-slider-container">
             ${item.images.length > 1 ? `<span class="image-count-badge">共 ${item.images.length} 張 (可橫滑)</span>` : ''}
