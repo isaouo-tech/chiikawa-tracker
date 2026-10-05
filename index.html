@@ -30,19 +30,19 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    /* 獨立背景層：置底且不阻擋點擊事件 pointer-events: none */
     #bg-layer {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1;
+      z-index: 0;
       background-color: #A3D8F4;
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
-      transform: translate3d(0, 0, 0);
-      will-change: transform;
+      pointer-events: none;
       transition: background-image 0.25s ease;
     }
 
@@ -55,6 +55,8 @@
       min-height: 100vh;
       overflow-x: hidden;
       width: 100%;
+      position: relative;
+      z-index: 1;
     }
 
     header {
@@ -95,61 +97,31 @@
       gap: 18px;
     }
 
+    /* 更換背景控制列：保證置頂可點擊 */
     .bg-settings-bar {
       display: flex;
       justify-content: flex-end;
+      gap: 8px;
       width: 100%;
-      position: relative;
-      z-index: 10;
     }
 
-    .bg-toggle-btn {
+    .bg-action-btn {
       background: rgba(255, 255, 255, 0.95);
       border: 1.5px solid var(--border-color);
       color: var(--marron-brown);
-      padding: 8px 16px;
-      border-radius: 14px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    }
-
-    .bg-toggle-btn:active {
-      transform: scale(0.97);
-    }
-
-    .bg-panel {
-      display: none;
-      background: var(--card-bg);
-      border: 1.5px solid var(--border-color);
-      border-radius: 16px;
-      padding: 16px;
-      gap: 12px;
-      flex-direction: column;
-      box-shadow: 0 6px 20px rgba(83, 51, 43, 0.12);
-      width: 100%;
-      position: relative;
-      z-index: 10;
-    }
-
-    .bg-panel.show {
-      display: flex !important;
-    }
-
-    .bg-panel-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .bg-panel-actions button {
-      padding: 8px 16px;
-      border-radius: 10px;
+      padding: 8px 14px;
+      border-radius: 12px;
       font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
-      border: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bg-action-btn:active {
+      transform: scale(0.96);
     }
 
     .form-card {
@@ -319,11 +291,10 @@
       border: 1.8px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      transform: translate3d(0, 0, 0);
-      contain: paint;
       width: 100%;
     }
 
+    /* 正方形 1:1 照片容器 */
     .image-slider-container {
       position: relative;
       width: 100%;
@@ -335,7 +306,6 @@
       display: flex;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      transform: translateZ(0);
     }
 
     .slider-img {
@@ -345,7 +315,6 @@
       aspect-ratio: 1 / 1;
       object-fit: cover;
       scroll-snap-align: start;
-      backface-visibility: hidden;
     }
 
     .image-count-badge {
@@ -570,27 +539,28 @@
 </head>
 <body>
 
+  <!-- 獨立背景層 -->
   <div id="bg-layer"></div>
 
   <header>
     <h1>⚔️討伐紀錄⚔️</h1>
-    <div class="sub-banner">🍺 イサオ的討伐紀錄⁽͑ ⑉ •̀`ꈊ´•́ ⑉ ⁾̉ و 🍶 ハーッ…</div>
+    <div class="sub-banner">🍺 イサオ的討伐紀錄⁽͑ ⑉ •̀`ꈊ´•́ ⑉ ⁾̉ 和 🍶 ハーッ…</div>
   </header>
 
   <div class="container">
+    <!-- 直覺操作：點按鈕直接選相簿更換桌布 -->
     <div class="bg-settings-bar">
-      <button type="button" class="bg-toggle-btn" id="btnToggleBg">🖼️ 更換網頁背景</button>
-    </div>
-    <div id="bgPanel" class="bg-panel">
-      <div style="font-size:0.85rem; font-weight:700; color:var(--marron-dark);">🎨 自訂桌布背景</div>
-      <input type="file" id="customBgFileInput" accept="image/*" style="font-size:0.85rem;">
-      <input type="text" id="customBgUrlInput" placeholder="或貼上背景圖片網址 (https://...)" style="padding:8px 10px; border:1px solid var(--border-color); border-radius:8px; font-size:14px; outline:none;">
-      <div class="bg-panel-actions">
-        <button type="button" id="btnApplyBg" style="background:var(--beer-gold); color:white;">套用背景</button>
-        <button type="button" id="btnResetBg" style="background:#EEE; color:#555;">恢復預設飛天圖</button>
-      </div>
+      <!-- 隱藏的 input，由按鈕觸發 -->
+      <input type="file" id="directBgInput" accept="image/*" style="display:none;">
+      <button type="button" class="bg-action-btn" onclick="document.getElementById('directBgInput').click()">
+        🖼️ 選照片換桌布
+      </button>
+      <button type="button" class="bg-action-btn" onclick="resetBgToDefault()">
+        ↺ 恢復預設
+      </button>
     </div>
 
+    <!-- 新增紀錄表單 -->
     <section class="form-card">
       <div class="izakaya-deco">🍢🍺</div>
       <h2>✦ 討伐報酬💵</h2>
@@ -645,6 +615,7 @@
       </form>
     </section>
 
+    <!-- 工具列 -->
     <div class="toolbar">
       <div class="stats">
         共 <span id="totalItems">0</span> 件戰利品
@@ -659,6 +630,7 @@
       </div>
     </div>
 
+    <!-- 商品卡片列表 -->
     <div id="itemGrid" class="item-grid"></div>
   </div>
 
@@ -666,63 +638,51 @@
     const STORAGE_KEY = 'chiikawatan_items_data';
     const BG_STORAGE_KEY = 'chiikawatan_custom_bg';
     
+    // 預設飛天吉伊卡哇背景
     const DEFAULT_BG = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='100%25' height='100%25' fill='%23A4D6F4'/%3E%3Cg fill='%23FFFFFF' opacity='0.95'%3E%3Cellipse cx='280' cy='580' rx='130' ry='60'/%3E%3Cellipse cx='780' cy='520' rx='220' ry='90'/%3E%3Cellipse cx='710' cy='890' rx='280' ry='95'/%3E%3Cellipse cx='1380' cy='620' rx='140' ry='65'/%3E%3C/g%3E%3Cg transform='translate(450, 270)'%3E%3Crect x='-25' y='68' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 42 C165 65 190 70 178 95 C195 82 205 60 175 42 Z' fill='%23F49AA0' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='85' cy='6' rx='12' ry='12' fill='%23FFFFFF' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M45 52 Q 55 42 65 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M105 52 Q 115 42 125 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(680, 420)'%3E%3Crect x='-25' y='72' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 48 C165 70 192 75 180 100 C198 86 206 62 175 48 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M35 15 Q 85 45 135 15 C 120 -5 50 -5 35 15 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='72' cy='-2' rx='12' ry='22' fill='%236BA8E5' stroke='%23382622' stroke-width='5' transform='rotate(-8 72 -2)'/%3E%3Cpath d='M48 56 Q 58 46 68 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M102 56 Q 112 46 122 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(930, 310)'%3E%3Crect x='-25' y='70' width='250' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='65' rx='72' ry='62' fill='%23FFF4B8' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='2' rx='12' ry='12' fill='%23FFF4B8' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M62 54 Q 72 44 82 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M118 54 Q 128 44 138 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cg stroke='%23382622' stroke-width='5' stroke-linecap='round'%3E%3Cline x1='100' y1='-22' x2='100' y2='-10'/%3E%3Cline x1='80' y1='-16' x2='86' y2='-6'/%3E%3Cline x1='120' y1='-16' x2='114' y2='-6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")";
 
     let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
-    function setBackgroundView(bgValue) {
+    // 背景套用函數
+    function applyBg(url) {
       const bgLayer = document.getElementById('bg-layer');
       if (!bgLayer) return;
-      if (bgValue && bgValue.startsWith('data:') || bgValue.startsWith('http')) {
-        bgLayer.style.backgroundImage = `url("${bgValue}")`;
-      } else if (bgValue && bgValue.startsWith('url(')) {
-        bgLayer.style.backgroundImage = bgValue;
+      if (url && (url.startsWith('data:') || url.startsWith('http'))) {
+        bgLayer.style.backgroundImage = `url("${url}")`;
       } else {
         bgLayer.style.backgroundImage = DEFAULT_BG;
       }
     }
 
-    function initBackground() {
-      const savedBg = localStorage.getItem(BG_STORAGE_KEY);
-      setBackgroundView(savedBg || DEFAULT_BG);
+    // 初始化背景
+    function loadSavedBg() {
+      const saved = localStorage.getItem(BG_STORAGE_KEY);
+      applyBg(saved || DEFAULT_BG);
     }
+    loadSavedBg();
 
-    // 透過 addEventListener 綁定，避免行內 onclick 失效
-    document.getElementById('btnToggleBg').addEventListener('click', function() {
-      const panel = document.getElementById('bgPanel');
-      panel.classList.toggle('show');
-    });
-
-    document.getElementById('btnApplyBg').addEventListener('click', async function() {
-      const fileInput = document.getElementById('customBgFileInput');
-      const urlInput = document.getElementById('customBgUrlInput').value.trim();
-      let bgUrl = '';
-
-      if (fileInput.files && fileInput.files[0]) {
-        bgUrl = await readFileAsBase64(fileInput.files[0], 900);
-      } else if (urlInput) {
-        bgUrl = urlInput;
-      }
-
-      if (bgUrl) {
+    // 點擊按鈕選完相片後立刻觸發
+    document.getElementById('directBgInput').addEventListener('change', async function() {
+      if (this.files && this.files[0]) {
+        const base64 = await readFileAsBase64(this.files[0], 900);
         try {
-          localStorage.setItem(BG_STORAGE_KEY, bgUrl);
-          setBackgroundView(bgUrl);
-          document.getElementById('bgPanel').classList.remove('show');
+          localStorage.setItem(BG_STORAGE_KEY, base64);
+          applyBg(base64);
         } catch (e) {
-          alert('圖片解析度過高，建議換一張較小的照片或改用圖片網址！');
+          alert('這張照片稍微偏大，請選一張較小的照片！');
         }
       }
     });
 
-    document.getElementById('btnResetBg').addEventListener('click', function() {
+    // 恢復預設背景
+    function resetBgToDefault() {
       localStorage.removeItem(BG_STORAGE_KEY);
-      setBackgroundView(DEFAULT_BG);
-      document.getElementById('bgPanel').classList.remove('show');
-    });
+      applyBg(DEFAULT_BG);
+    }
 
     const defaultPlaceholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='200' viewBox='0 0 220 200'%3E%3Crect fill='%23FBF6F0' width='220' height='200'/%3E%3Ctext fill='%238D5B4C' font-size='15' font-family='sans-serif' font-weight='bold' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle'%3E🍢 暫無商品圖片%3C/text%3E%3C/svg%3E";
 
+    // 處理新增商品
     document.getElementById('itemForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -769,6 +729,7 @@
       this.reset();
     });
 
+    // 圖片壓縮函數
     function readFileAsBase64(file, maxWidth = 600) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -988,11 +949,7 @@
       });
     }
 
-    // DOM 載入後正確初始化
-    document.addEventListener('DOMContentLoaded', () => {
-      initBackground();
-      renderItems();
-    });
+    renderItems();
   </script>
 </body>
 </html>
