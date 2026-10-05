@@ -32,7 +32,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* 獨立背景層：內嵌飛天吉伊卡哇背景，徹底解決滾動閃爍 */
+    /* 獨立背景層：支援動態替換與防滾動閃爍 */
     #bg-layer {
       position: fixed;
       top: 0;
@@ -41,13 +41,12 @@
       height: 100vh;
       z-index: -1;
       background-color: #A3D8F4;
-      background-image: 
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='100%25' height='100%25' fill='%23A4D6F4'/%3E%3Cg fill='%23FFFFFF' opacity='0.95'%3E%3Cellipse cx='280' cy='580' rx='130' ry='60'/%3E%3Cellipse cx='780' cy='520' rx='220' ry='90'/%3E%3Cellipse cx='710' cy='890' rx='280' ry='95'/%3E%3Cellipse cx='1380' cy='620' rx='140' ry='65'/%3E%3C/g%3E%3Cg transform='translate(450, 270)'%3E%3Crect x='-25' y='68' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 42 C165 65 190 70 178 95 C195 82 205 60 175 42 Z' fill='%23F49AA0' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='85' cy='6' rx='12' ry='12' fill='%23FFFFFF' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M45 52 Q 55 42 65 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M105 52 Q 115 42 125 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(680, 420)'%3E%3Crect x='-25' y='72' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 48 C165 70 192 75 180 100 C198 86 206 62 175 48 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M35 15 Q 85 45 135 15 C 120 -5 50 -5 35 15 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='72' cy='-2' rx='12' ry='22' fill='%236BA8E5' stroke='%23382622' stroke-width='5' transform='rotate(-8 72 -2)'/%3E%3Cpath d='M48 56 Q 58 46 68 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M102 56 Q 112 46 122 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(930, 310)'%3E%3Crect x='-25' y='70' width='250' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='65' rx='72' ry='62' fill='%23FFF4B8' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='2' rx='12' ry='12' fill='%23FFF4B8' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M62 54 Q 72 44 82 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M118 54 Q 128 44 138 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cg stroke='%23382622' stroke-width='5' stroke-linecap='round'%3E%3Cline x1='100' y1='-22' x2='100' y2='-10'/%3E%3Cline x1='80' y1='-16' x2='86' y2='-6'/%3E%3Cline x1='120' y1='-16' x2='114' y2='-6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
       transform: translate3d(0, 0, 0);
       will-change: transform;
+      transition: background-image 0.3s ease;
     }
 
     body {
@@ -99,7 +98,57 @@
       gap: 18px;
     }
 
-    /* 表單區塊 - 修正防止溢出 */
+    /* 自定義背景浮動小按鈕與面板 */
+    .bg-settings-bar {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+    }
+
+    .bg-toggle-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1.5px solid var(--border-color);
+      color: var(--marron-brown);
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .bg-panel {
+      display: none;
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: 16px;
+      padding: 14px;
+      gap: 10px;
+      flex-direction: column;
+      box-shadow: 0 4px 14px rgba(83, 51, 43, 0.08);
+      width: 100%;
+    }
+
+    .bg-panel.show {
+      display: flex;
+    }
+
+    .bg-panel-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .bg-panel-actions button {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* 表單區塊 */
     .form-card {
       background: var(--card-bg);
       border-radius: 22px;
@@ -108,7 +157,7 @@
       border: 2px solid var(--border-color);
       position: relative;
       width: 100%;
-      overflow: hidden; /* 防止內容爆框 */
+      overflow: hidden;
     }
 
     .izakaya-deco {
@@ -140,7 +189,7 @@
       flex-direction: column;
       gap: 5px;
       width: 100%;
-      min-width: 0; /* 關鍵：避免 Grid 內元件撐開破版 */
+      min-width: 0;
     }
 
     .form-group.full-width {
@@ -153,7 +202,6 @@
       color: var(--marron-dark);
     }
 
-    /* 關鍵修復：嚴格鎖定寬度 100% 與 box-sizing */
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -275,11 +323,11 @@
       width: 100%;
     }
 
-    /* 圖片輪播滑動區塊 */
+    /* 圖片輪播區塊：1:1 正方形展示 */
     .image-slider-container {
       position: relative;
       width: 100%;
-      height: 200px;
+      aspect-ratio: 1 / 1;
       background-color: #FAF4EF;
       border-bottom: 1.5px dashed var(--border-color);
       overflow-x: auto;
@@ -294,6 +342,7 @@
       min-width: 100%;
       width: 100%;
       height: 100%;
+      aspect-ratio: 1 / 1;
       object-fit: cover;
       scroll-snap-align: start;
       backface-visibility: hidden;
@@ -310,6 +359,7 @@
       padding: 3px 8px;
       border-radius: 10px;
       pointer-events: none;
+      z-index: 2;
     }
 
     .item-details {
@@ -503,7 +553,7 @@
       }
 
       .form-grid {
-        grid-template-columns: 1fr; /* 手機上一律單欄 */
+        grid-template-columns: 1fr;
         gap: 10px;
         width: 100%;
       }
@@ -531,6 +581,20 @@
   </header>
 
   <div class="container">
+    <!-- 自訂背景功能按鈕與收合面板 -->
+    <div class="bg-settings-bar">
+      <button class="bg-toggle-btn" onclick="toggleBgPanel()">🖼️ 更換網頁背景</button>
+    </div>
+    <div id="bgPanel" class="bg-panel">
+      <div style="font-size:0.85rem; font-weight:700; color:var(--marron-dark);">🎨 自訂桌布背景（自動儲存）</div>
+      <input type="file" id="customBgFileInput" accept="image/*" style="font-size:0.85rem;">
+      <input type="text" id="customBgUrlInput" placeholder="或貼上背景圖片網址 (https://...)" style="padding:8px 10px; border:1.5px solid var(--border-color); border-radius:8px; font-size:14px; outline:none;">
+      <div class="bg-panel-actions">
+        <button style="background:var(--beer-gold); color:white;" onclick="applyCustomBg()">套用背景</button>
+        <button style="background:#EEE; color:#555;" onclick="resetDefaultBg()">恢復預設飛天圖</button>
+      </div>
+    </div>
+
     <!-- 新增紀錄表單 -->
     <section class="form-card">
       <div class="izakaya-deco">🍢🍺</div>
@@ -607,7 +671,57 @@
 
   <script>
     const STORAGE_KEY = 'chiikawatan_items_data';
+    const BG_STORAGE_KEY = 'chiikawatan_custom_bg';
+    
+    // 預設飛天吉伊卡哇 SVG 背景
+    const DEFAULT_BG = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='100%25' height='100%25' fill='%23A4D6F4'/%3E%3Cg fill='%23FFFFFF' opacity='0.95'%3E%3Cellipse cx='280' cy='580' rx='130' ry='60'/%3E%3Cellipse cx='780' cy='520' rx='220' ry='90'/%3E%3Cellipse cx='710' cy='890' rx='280' ry='95'/%3E%3Cellipse cx='1380' cy='620' rx='140' ry='65'/%3E%3C/g%3E%3Cg transform='translate(450, 270)'%3E%3Crect x='-25' y='68' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 42 C165 65 190 70 178 95 C195 82 205 60 175 42 Z' fill='%23F49AA0' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='85' cy='6' rx='12' ry='12' fill='%23FFFFFF' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M45 52 Q 55 42 65 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M105 52 Q 115 42 125 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(680, 420)'%3E%3Crect x='-25' y='72' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 48 C165 70 192 75 180 100 C198 86 206 62 175 48 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M35 15 Q 85 45 135 15 C 120 -5 50 -5 35 15 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='72' cy='-2' rx='12' ry='22' fill='%236BA8E5' stroke='%23382622' stroke-width='5' transform='rotate(-8 72 -2)'/%3E%3Cpath d='M48 56 Q 58 46 68 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M102 56 Q 112 46 122 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(930, 310)'%3E%3Crect x='-25' y='70' width='250' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='65' rx='72' ry='62' fill='%23FFF4B8' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='2' rx='12' ry='12' fill='%23FFF4B8' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M62 54 Q 72 44 82 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M118 54 Q 128 44 138 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cg stroke='%23382622' stroke-width='5' stroke-linecap='round'%3E%3Cline x1='100' y1='-22' x2='100' y2='-10'/%3E%3Cline x1='80' y1='-16' x2='86' y2='-6'/%3E%3Cline x1='120' y1='-16' x2='114' y2='-6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")";
+
     let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    // 初始化載入自訂背景
+    function initBackground() {
+      const savedBg = localStorage.getItem(BG_STORAGE_KEY);
+      const bgLayer = document.getElementById('bg-layer');
+      if (savedBg) {
+        bgLayer.style.backgroundImage = `url("${savedBg}")`;
+      } else {
+        bgLayer.style.backgroundImage = DEFAULT_BG;
+      }
+    }
+    initBackground();
+
+    function toggleBgPanel() {
+      const panel = document.getElementById('bgPanel');
+      panel.classList.toggle('show');
+    }
+
+    async function applyCustomBg() {
+      const fileInput = document.getElementById('customBgFileInput');
+      const urlInput = document.getElementById('customBgUrlInput').value.trim();
+      let bgUrl = '';
+
+      if (fileInput.files && fileInput.files[0]) {
+        bgUrl = await readFileAsBase64(fileInput.files[0]);
+      } else if (urlInput) {
+        bgUrl = urlInput;
+      }
+
+      if (bgUrl) {
+        try {
+          localStorage.setItem(BG_STORAGE_KEY, bgUrl);
+          document.getElementById('bg-layer').style.backgroundImage = `url("${bgUrl}")`;
+          toggleBgPanel();
+        } catch (e) {
+          alert('圖片檔案稍大，建議改貼圖片網址或使用尺寸較小的照片喔！');
+        }
+      }
+    }
+
+    function resetDefaultBg() {
+      localStorage.removeItem(BG_STORAGE_KEY);
+      document.getElementById('bg-layer').style.backgroundImage = DEFAULT_BG;
+      toggleBgPanel();
+    }
 
     const defaultPlaceholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='200' viewBox='0 0 220 200'%3E%3Crect fill='%23FBF6F0' width='220' height='200'/%3E%3Ctext fill='%238D5B4C' font-size='15' font-family='sans-serif' font-weight='bold' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle'%3E🍢 暫無商品圖片%3C/text%3E%3C/svg%3E";
 
@@ -666,11 +780,814 @@
           const img = new Image();
           img.onload = () => {
             const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 500;
+            const MAX_WIDTH = 600;
             const scaleSize = MAX_WIDTH / img.width;
             
             if (img.width > MAX_WIDTH) {
               canvas.width = MAX_WIDTH;
+              canvas.height = img.height * scaleSize;
+            } else {
+              canvas.width = img.width;
+              canvas.height = img.height;
+            }
+
+            const ctx = canvas.為你統整最完整、最極致的**「吉派坦 ⚔️ 終極版」**！
+
+本次統整直接將你所有的需求與修復**全部無縫整合在同一份檔案中**：
+1. **圖片顯示徹底升級為 1:1 標準正方形（`aspect-ratio: 1 / 1`）**：完整展開展示商品圖片，再也不會被切掉上下邊緣，配件與公仔細節一覽無遺。
+2. **手機版防破版與防滾動閃爍**：
+   * 嚴格限制表單欄位 `width: 100%`、`box-sizing: border-box`，徹底消除輸入框切破卡片邊界的問題。
+   * 背景分離為獨立硬體加速層（`#bg-layer`），滾動平滑如絲不卡頓。
+3. **介面內建「自定義背景」面板**：
+   * 預設為你指定的「吉伊、小八、烏薩奇飛天背景」。
+   * 工具列上方提供**「🖼️ 更換網頁背景」**按鈕，點開即可直接上傳手機相片或貼上圖片網址隨時更換，亦可一鍵恢復預設，並自動記存在瀏覽器中！
+4. **全功能兼備**：多圖橫滑展示、戰利品全欄位隨時可編輯、運送狀態即時下拉切換、不顯示總金額。
+
+---
+
+### 📄 `index.html` 完整程式碼（全選複製覆蓋 GitHub 即可）
+
+```html
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>吉派坦</title>
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
+  <style>
+    :root {
+      /* 栗子饅頭暖色調與居酒屋風格 */
+      --marron-brown: #8D5B4C;
+      --marron-dark: #53332B;
+      --beer-gold: #F5AF38;
+      --beer-deep: #DE7A22;
+      --edamame-green: #6C9A60;
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --border-color: #D8C2B2;
+      --primary-text: #4A352F;
+
+      /* 狀態徽章色系 */
+      --status-ordered: #E59866;
+      --status-shipping: #5DADE2;
+      --status-arrived: #48C78E;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Hiragino Kaku Gothic ProN", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 獨立背景層：硬體加速與平滑自定義過渡 */
+    #bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      background-color: #A3D8F4;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+      transition: background-image 0.3s ease;
+    }
+
+    body {
+      color: var(--primary-text);
+      padding: 24px 14px 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: var(--marron-dark);
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 0px #FFF, 3px 3px 0px rgba(141, 91, 76, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .sub-banner {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--marron-brown);
+      margin-top: 8px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 6px 16px;
+      border-radius: 20px;
+      display: inline-block;
+      border: 1.5px dashed var(--border-color);
+      box-shadow: 0 4px 12px rgba(83, 51, 43, 0.1);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* 自定義背景開關列 */
+    .bg-settings-bar {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+    }
+
+    .bg-toggle-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1.5px solid var(--border-color);
+      color: var(--marron-brown);
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .bg-panel {
+      display: none;
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: 16px;
+      padding: 14px;
+      gap: 10px;
+      flex-direction: column;
+      box-shadow: 0 4px 14px rgba(83, 51, 43, 0.08);
+      width: 100%;
+    }
+
+    .bg-panel.show {
+      display: flex;
+    }
+
+    .bg-panel-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .bg-panel-actions button {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* 表單區塊 */
+    .form-card {
+      background: var(--card-bg);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(83, 51, 43, 0.1);
+      border: 2px solid var(--border-color);
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .izakaya-deco {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      font-size: 1.4rem;
+      user-select: none;
+    }
+
+    .form-card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+      color: var(--marron-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      width: 100%;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--marron-dark);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      max-width: 100%;
+      padding: 11px 12px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+      background-color: #FFFDFB;
+      color: var(--primary-text);
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .form-group input[type="file"] {
+      background-color: #FFF;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' width='12' height='12' fill='%238D5B4C' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: calc(100% - 12px) center;
+      padding-right: 32px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--beer-gold);
+      background-color: #FFF;
+      box-shadow: 0 0 0 3px rgba(245, 175, 56, 0.22);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .submit-btn {
+      grid-column: 1 / -1;
+      width: 100%;
+      margin-top: 6px;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--beer-gold), var(--beer-deep));
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(222, 122, 34, 0.3);
+      transition: opacity 0.2s;
+    }
+
+    .submit-btn:active {
+      opacity: 0.85;
+    }
+
+    /* 工具列 */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      border: 1.5px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(83, 51, 43, 0.08);
+      width: 100%;
+    }
+
+    .stats {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--marron-dark);
+    }
+
+    .stats span {
+      color: var(--beer-deep);
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+
+    .filter-group select {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border-color);
+      background: white;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--marron-dark);
+      outline: none;
+    }
+
+    /* 商品卡片列表 */
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+      width: 100%;
+    }
+
+    .item-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(83, 51, 43, 0.1);
+      border: 1.8px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      transform: translate3d(0, 0, 0);
+      contain: paint;
+      width: 100%;
+    }
+
+    /* 正方形 1:1 照片容器 */
+    .image-slider-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background-color: #FAF4EF;
+      border-bottom: 1.5px dashed var(--border-color);
+      overflow-x: auto;
+      overflow-y: hidden;
+      display: flex;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      transform: translateZ(0);
+    }
+
+    .slider-img {
+      min-width: 100%;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      scroll-snap-align: start;
+      backface-visibility: hidden;
+    }
+
+    .image-count-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(83, 51, 43, 0.78);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 10px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .item-details {
+      padding: 15px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    .item-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--marron-dark);
+      word-break: break-word;
+    }
+
+    .item-price {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--beer-deep);
+    }
+
+    .item-info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #7A665F;
+    }
+
+    .status-edit-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .status-select-badge {
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: white;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' width='10' height='10' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: calc(100% - 8px) center;
+      padding-right: 24px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    .status-badge-已討伐 { background-color: var(--status-ordered); }
+    .status-badge-討伐中 { background-color: var(--status-shipping); }
+    .status-badge-討伐成功 { background-color: var(--status-arrived); }
+
+    .note-container {
+      background: #FDF9F5;
+      border: 1px dashed var(--border-color);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      color: #5C4A42;
+      margin-top: 4px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .edit-mode-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 4px 0;
+      width: 100%;
+    }
+
+    .edit-mode-form label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--marron-dark);
+    }
+
+    .edit-mode-form input,
+    .edit-mode-form select,
+    .edit-mode-form textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px solid var(--beer-gold);
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      background: #FFF;
+      color: var(--primary-text);
+    }
+
+    .edit-mode-form textarea {
+      resize: vertical;
+      min-height: 50px;
+    }
+
+    .edit-thumb-list {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 6px 0;
+      width: 100%;
+    }
+
+    .edit-thumb-wrapper {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .edit-thumb-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-remove-thumb {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(217, 83, 79, 0.9);
+      color: white;
+      border: none;
+      width: 18px;
+      height: 18px;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-actions {
+      margin-top: auto;
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn-edit-item, .delete-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+    }
+
+    .btn-edit-item {
+      background: #EDF6EB;
+      color: var(--edamame-green);
+      border: 1px solid var(--edamame-green);
+    }
+
+    .delete-btn {
+      background: #FDF0ED;
+      color: #D9534F;
+      border: 1px solid #F5C6CB;
+    }
+
+    .btn-edit-item:active, .delete-btn:active {
+      opacity: 0.75;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px 10px 36px;
+      }
+      
+      header h1 {
+        font-size: 1.65rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .form-card {
+        padding: 16px;
+        border-radius: 18px;
+      }
+
+      .item-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 獨立背景層 -->
+  <div id="bg-layer"></div>
+
+  <header>
+    <h1>⚔️討伐紀錄⚔️</h1>
+    <div class="sub-banner">🍺 イサオ的討伐紀錄⁽͑ ⑉ •̀`ꈊ´•́ ⑉ ⁾̉ و 🍶 ハーッ…</div>
+  </header>
+
+  <div class="container">
+    <!-- 自訂背景功能按鈕與收合面板 -->
+    <div class="bg-settings-bar">
+      <button class="bg-toggle-btn" onclick="toggleBgPanel()">🖼️ 更換網頁背景</button>
+    </div>
+    <div id="bgPanel" class="bg-panel">
+      <div style="font-size:0.85rem; font-weight:700; color:var(--marron-dark);">🎨 自訂桌布背景</div>
+      <input type="file" id="customBgFileInput" accept="image/*" style="font-size:0.85rem;">
+      <input type="text" id="customBgUrlInput" placeholder="或貼上背景圖片網址 (https://...)" style="padding:8px 10px; border:1px solid var(--border-color); border-radius:8px; font-size:14px;">
+      <div class="bg-panel-actions">
+        <button style="background:var(--beer-gold); color:white;" onclick="applyCustomBg()">套用背景</button>
+        <button style="background:#EEE; color:#555;" onclick="resetDefaultBg()">恢復預設飛天圖</button>
+      </div>
+    </div>
+
+    <!-- 新增紀錄表單 -->
+    <section class="form-card">
+      <div class="izakaya-deco">🍢🍺</div>
+      <h2>✦ 討伐報酬💵</h2>
+      <form id="itemForm" class="form-grid">
+        <div class="form-group">
+          <label>商品名稱 *</label>
+          <input type="text" id="itemName" placeholder="例：栗子饅頭" required>
+        </div>
+
+        <div class="form-group">
+          <label>商品價格 (NTD) *</label>
+          <input type="number" id="itemPrice" placeholder="例：420" min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label>付款方式</label>
+          <select id="itemPayment">
+            <option value="信用卡">信用卡</option>
+            <option value="超商取貨付款">7-11 / 超商取貨付款</option>
+            <option value="LINE Pay">LINE Pay</option>
+            <option value="代購平台代付">代購平台 (比比昂/代購)</option>
+            <option value="討伐報酬金換算">討伐報酬金 ⚔️</option>
+            <option value="ATM 轉帳">ATM 轉帳</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>貨物運送狀態</label>
+          <select id="itemStatus">
+            <option value="已討伐">已討伐🗡️</option>
+            <option value="討伐中">討伐中⛓️</option>
+            <option value="討伐成功">討伐成功✨</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>從照片中選取 (可複選多張相片)</label>
+          <input type="file" id="itemImageFile" accept="image/*" multiple>
+        </div>
+
+        <div class="form-group">
+          <label>或 圖片網址 (多張請用逗號隔開)</label>
+          <input type="text" id="itemImageUrl" placeholder="https://... , https://...">
+        </div>
+
+        <div class="form-group full-width">
+          <label>備註紀錄（可隨時更改）</label>
+          <textarea id="itemNote" placeholder="例如：跟團買的、附送杯墊特典、預計下個月到貨..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">納入討伐帳本 🍺 ハーッ！</button>
+      </form>
+    </section>
+
+    <!-- 工具列 -->
+    <div class="toolbar">
+      <div class="stats">
+        共 <span id="totalItems">0</span> 件戰利品
+      </div>
+      <div class="filter-group">
+        <select id="filterStatus" onchange="renderItems()">
+          <option value="全部">全部運送狀態</option>
+          <option value="已討伐">已討伐🗡️</option>
+          <option value="討伐中">討伐中⛓️</option>
+          <option value="討伐成功">討伐成功✨</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 商品卡片列表 -->
+    <div id="itemGrid" class="item-grid"></div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'chiikawatan_items_data';
+    const BG_STORAGE_KEY = 'chiikawatan_custom_bg';
+    
+    // 預設飛天吉伊卡哇 SVG 背景
+    const DEFAULT_BG = "url(\"data:image/svg+xml,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='100%25' height='100%25' fill='%23A4D6F4'/%3E%3Cg fill='%23FFFFFF' opacity='0.95'%3E%3Cellipse cx='280' cy='580' rx='130' ry='60'/%3E%3Cellipse cx='780' cy='520' rx='220' ry='90'/%3E%3Cellipse cx='710' cy='890' rx='280' ry='95'/%3E%3Cellipse cx='1380' cy='620' rx='140' ry='65'/%3E%3C/g%3E%3Cg transform='translate(450, 270)'%3E%3Crect x='-25' y='68' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 42 C165 65 190 70 178 95 C195 82 205 60 175 42 Z' fill='%23F49AA0' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='85' cy='6' rx='12' ry='12' fill='%23FFFFFF' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M45 52 Q 55 42 65 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M105 52 Q 115 42 125 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(680, 420)'%3E%3Crect x='-25' y='72' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 48 C165 70 192 75 180 100 C198 86 206 62 175 48 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M35 15 Q 85 45 135 15 C 120 -5 50 -5 35 15 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='72' cy='-2' rx='12' ry='22' fill='%236BA8E5' stroke='%23382622' stroke-width='5' transform='rotate(-8 72 -2)'/%3E%3Cpath d='M48 56 Q 58 46 68 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M102 56 Q 112 46 122 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(930, 310)'%3E%3Crect x='-25' y='70' width='250' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='65' rx='72' ry='62' fill='%23FFF4B8' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='2' rx='12' ry='12' fill='%23FFF4B8' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M62 54 Q 72 44 82 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M118 54 Q 128 44 138 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cg stroke='%23382622' stroke-width='5' stroke-linecap='round'%3E%3Cline x1='100' y1='-22' x2='100' y2='-10'/%3E%3Cline x1='80' y1='-16' x2='86' y2='-6'/%3E%3Cline x1='120' y1='-16' x2='114' y2='-6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")";
+
+    let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    // 初始化背景
+    function initBackground() {
+      const savedBg = localStorage.getItem(BG_STORAGE_KEY);
+      const bgLayer = document.getElementById('bg-layer');
+      if (savedBg) {
+        bgLayer.style.backgroundImage = `url("${savedBg}")`;
+      } else {
+        bgLayer.style.backgroundImage = DEFAULT_BG;
+      }
+    }
+    initBackground();
+
+    function toggleBgPanel() {
+      const panel = document.getElementById('bgPanel');
+      panel.classList.toggle('show');
+    }
+
+    async function applyCustomBg() {
+      const fileInput = document.getElementById('customBgFileInput');
+      const urlInput = document.getElementById('customBgUrlInput').value.trim();
+      let bgUrl = '';
+
+      if (fileInput.files && fileInput.files[0]) {
+        bgUrl = await readFileAsBase64(fileInput.files[0], 1200);
+      } else if (urlInput) {
+        bgUrl = urlInput;
+      }
+
+      if (bgUrl) {
+        localStorage.setItem(BG_STORAGE_KEY, bgUrl);
+        document.getElementById('bg-layer').style.backgroundImage = `url("${bgUrl}")`;
+        toggleBgPanel();
+      }
+    }
+
+    function resetDefaultBg() {
+      localStorage.removeItem(BG_STORAGE_KEY);
+      document.getElementById('bg-layer').style.backgroundImage = DEFAULT_BG;
+      toggleBgPanel();
+    }
+
+    const defaultPlaceholder = "data:image/svg+xml,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' width='220' height='200' viewBox='0 0 220 200'%3E%3Crect fill='%23FBF6F0' width='220' height='200'/%3E%3Ctext fill='%238D5B4C' font-size='15' font-family='sans-serif' font-weight='bold' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle'%3E🍢 暫無商品圖片%3C/text%3E%3C/svg%3E";
+
+    // 處理新增商品
+    document.getElementById('itemForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('itemName').value;
+      const price = parseFloat(document.getElementById('itemPrice').value) || 0;
+      const payment = document.getElementById('itemPayment').value;
+      const status = document.getElementById('itemStatus').value;
+      const fileInput = document.getElementById('itemImageFile');
+      const urlInput = document.getElementById('itemImageUrl').value.trim();
+      const note = document.getElementById('itemNote').value.trim();
+
+      let images = [];
+
+      if (fileInput.files && fileInput.files.length > 0) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+          const base64 = await readFileAsBase64(fileInput.files[i], 600);
+          images.push(base64);
+        }
+      }
+
+      if (urlInput) {
+        const urls = urlInput.split(',').map(u => u.trim()).filter(u => u.length > 0);
+        images = images.concat(urls);
+      }
+
+      if (images.length === 0) {
+        images = [defaultPlaceholder];
+      }
+
+      const newItem = {
+        id: Date.now(),
+        name,
+        price,
+        payment,
+        status,
+        images: images,
+        note: note || '無備註',
+        isEditing: false,
+        date: new Date().toLocaleDateString()
+      };
+
+      items.unshift(newItem);
+      saveAndRender();
+      this.reset();
+    });
+
+    // 壓縮相片為 Base64 (提升滾動流暢度)
+    function readFileAsBase64(file, maxWidth = 600) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const scaleSize = maxWidth / img.width;
+            
+            if (img.width > maxWidth) {
+              canvas.width = maxWidth;
               canvas.height = img.height * scaleSize;
             } else {
               canvas.width = img.width;
@@ -715,7 +1632,7 @@
           item.images = [];
         }
         for (let i = 0; i < inputElement.files.length; i++) {
-          const b64 = await readFileAsBase64(inputElement.files[i]);
+          const b64 = await readFileAsBase64(inputElement.files[i], 600);
           item.images.push(b64);
         }
         renderItems();
@@ -788,6 +1705,7 @@
         const card = document.createElement('div');
         card.className = 'item-card';
 
+        // 輪播 / 多圖瀏覽區塊（正方形 1:1）
         const imgHtml = `
           <div class="image-slider-container">
             ${item.images.length > 1 ? `<span class="image-count-badge">共 ${item.images.length} 張 (可橫滑)</span>` : ''}
@@ -819,7 +1737,7 @@
                 <option value="超商取貨付款" ${item.payment === '超商取貨付款' ? 'selected' : ''}>7-11 / 超商取貨付款</option>
                 <option value="LINE Pay" ${item.payment === 'LINE Pay' ? 'selected' : ''}>LINE Pay</option>
                 <option value="代購平台代付" ${item.payment === '代購平台代付' ? 'selected' : ''}>代購平台 (比比昂/代購)</option>
-                <option value="討伐報酬金換算" ${item.payment === '討伐報酬金換算' ? 'selected' : ''}>討伐報酬金 ⚔️</option>
+                <option value="討伐報酬金換算" ${item.payment === '討伐報酬金換算' ? 'selected' : ''}>討伐報酬金 ⚔️️</option>
                 <option value="ATM 轉帳" ${item.payment === 'ATM 轉帳' ? 'selected' : ''}>ATM 轉帳</option>
               </select>
 
