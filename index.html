@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="icon.png">
   <style>
     :root {
+      /* 栗子饅頭暖色調與居酒屋風格 */
       --marron-brown: #8D5B4C;
       --marron-dark: #53332B;
       --beer-gold: #F5AF38;
@@ -30,25 +31,26 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* 獨立背景層：置底且不阻擋點擊事件 pointer-events: none */
+    /* 獨立背景層：置底且不阻礙點擊 */
     #bg-layer {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 0;
+      z-index: -1;
       background-color: #A3D8F4;
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
       pointer-events: none;
-      transition: background-image 0.25s ease;
     }
 
     body {
       color: var(--primary-text);
-      padding: 24px 14px 44px;
+      padding: 20px 14px 44px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -56,12 +58,11 @@
       overflow-x: hidden;
       width: 100%;
       position: relative;
-      z-index: 1;
     }
 
     header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       width: 100%;
     }
 
@@ -94,15 +95,16 @@
       max-width: 860px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
-    /* 更換背景控制列：保證置頂可點擊 */
+    /* 更換背景控制列：保證獨立可點擊 */
     .bg-settings-bar {
       display: flex;
       justify-content: flex-end;
       gap: 8px;
       width: 100%;
+      margin-bottom: 4px;
     }
 
     .bg-action-btn {
@@ -111,11 +113,11 @@
       color: var(--marron-brown);
       padding: 8px 14px;
       border-radius: 12px;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 4px;
     }
@@ -514,22 +516,18 @@
       body {
         padding: 16px 10px 36px;
       }
-      
       header h1 {
         font-size: 1.65rem;
       }
-
       .form-grid {
         grid-template-columns: 1fr;
         gap: 10px;
         width: 100%;
       }
-
       .form-card {
         padding: 16px;
         border-radius: 18px;
       }
-
       .item-grid {
         grid-template-columns: 1fr;
         gap: 14px;
@@ -543,19 +541,18 @@
   <div id="bg-layer"></div>
 
   <header>
-    <h1>⚔️討伐紀錄⚔️</h1>
+    <h1>⚔️討伐紀錄⚔️️</h1>
     <div class="sub-banner">🍺 イサオ的討伐紀錄⁽͑ ⑉ •̀`ꈊ´•́ ⑉ ⁾̉ 和 🍶 ハーッ…</div>
   </header>
 
   <div class="container">
-    <!-- 直覺操作：點按鈕直接選相簿更換桌布 -->
+    <!-- 更換背景功能列 -->
     <div class="bg-settings-bar">
-      <!-- 隱藏的 input，由按鈕觸發 -->
       <input type="file" id="directBgInput" accept="image/*" style="display:none;">
-      <button type="button" class="bg-action-btn" onclick="document.getElementById('directBgInput').click()">
+      <button type="button" class="bg-action-btn" id="btnPickBg">
         🖼️ 選照片換桌布
       </button>
-      <button type="button" class="bg-action-btn" onclick="resetBgToDefault()">
+      <button type="button" class="bg-action-btn" id="btnResetBg">
         ↺ 恢復預設
       </button>
     </div>
@@ -591,7 +588,7 @@
           <label>貨物運送狀態</label>
           <select id="itemStatus">
             <option value="已討伐">已討伐🗡️</option>
-            <option value="討伐中">討伐中⛓️</option>
+            <option value="討伐中">討伐中⛓️️</option>
             <option value="討伐成功">討伐成功✨</option>
           </select>
         </div>
@@ -621,7 +618,7 @@
         共 <span id="totalItems">0</span> 件戰利品
       </div>
       <div class="filter-group">
-        <select id="filterStatus" onchange="renderItems()">
+        <select id="filterStatus">
           <option value="全部">全部運送狀態</option>
           <option value="已討伐">已討伐🗡️</option>
           <option value="討伐中">討伐中⛓️</option>
@@ -638,51 +635,101 @@
     const STORAGE_KEY = 'chiikawatan_items_data';
     const BG_STORAGE_KEY = 'chiikawatan_custom_bg';
     
-    // 預設飛天吉伊卡哇背景
+    // 預設飛天吉伊卡哇 SVG 背景
     const DEFAULT_BG = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='100%25' height='100%25' fill='%23A4D6F4'/%3E%3Cg fill='%23FFFFFF' opacity='0.95'%3E%3Cellipse cx='280' cy='580' rx='130' ry='60'/%3E%3Cellipse cx='780' cy='520' rx='220' ry='90'/%3E%3Cellipse cx='710' cy='890' rx='280' ry='95'/%3E%3Cellipse cx='1380' cy='620' rx='140' ry='65'/%3E%3C/g%3E%3Cg transform='translate(450, 270)'%3E%3Crect x='-25' y='68' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 42 C165 65 190 70 178 95 C195 82 205 60 175 42 Z' fill='%23F49AA0' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='85' cy='6' rx='12' ry='12' fill='%23FFFFFF' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M45 52 Q 55 42 65 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M105 52 Q 115 42 125 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(680, 420)'%3E%3Crect x='-25' y='72' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 48 C165 70 192 75 180 100 C198 86 206 62 175 48 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M35 15 Q 85 45 135 15 C 120 -5 50 -5 35 15 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='72' cy='-2' rx='12' ry='22' fill='%236BA8E5' stroke='%23382622' stroke-width='5' transform='rotate(-8 72 -2)'/%3E%3Cpath d='M48 56 Q 58 46 68 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M102 56 Q 112 46 122 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(930, 310)'%3E%3Crect x='-25' y='70' width='250' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='65' rx='72' ry='62' fill='%23FFF4B8' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='2' rx='12' ry='12' fill='%23FFF4B8' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M62 54 Q 72 44 82 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M118 54 Q 128 44 138 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cg stroke='%23382622' stroke-width='5' stroke-linecap='round'%3E%3Cline x1='100' y1='-22' x2='100' y2='-10'/%3E%3Cline x1='80' y1='-16' x2='86' y2='-6'/%3E%3Cline x1='120' y1='-16' x2='114' y2='-6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")";
 
-    let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let items = [];
+    try {
+      items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch (e) {
+      items = [];
+    }
 
-    // 背景套用函數
+    // 安全載入背景
     function applyBg(url) {
-      const bgLayer = document.getElementById('bg-layer');
-      if (!bgLayer) return;
-      if (url && (url.startsWith('data:') || url.startsWith('http'))) {
-        bgLayer.style.backgroundImage = `url("${url}")`;
-      } else {
-        bgLayer.style.backgroundImage = DEFAULT_BG;
+      try {
+        const bgLayer = document.getElementById('bg-layer');
+        if (!bgLayer) return;
+        if (url && (url.startsWith('data:') || url.startsWith('http'))) {
+          bgLayer.style.backgroundImage = `url("${url}")`;
+        } else {
+          bgLayer.style.backgroundImage = DEFAULT_BG;
+        }
+      } catch (e) {}
+    }
+
+    function loadSavedBg() {
+      try {
+        const saved = localStorage.getItem(BG_STORAGE_KEY);
+        applyBg(saved || DEFAULT_BG);
+      } catch (e) {
+        applyBg(DEFAULT_BG);
       }
     }
 
-    // 初始化背景
-    function loadSavedBg() {
-      const saved = localStorage.getItem(BG_STORAGE_KEY);
-      applyBg(saved || DEFAULT_BG);
-    }
-    loadSavedBg();
+    // 高效壓縮：將背景壓縮為 700px / 0.7 質量，保證容量絕不超標
+    function compressImage(file, maxWidth = 600, quality = 0.7) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const scaleSize = maxWidth / img.width;
+            
+            if (img.width > maxWidth) {
+              canvas.width = maxWidth;
+              canvas.height = img.height * scaleSize;
+            } else {
+              canvas.width = img.width;
+              canvas.height = img.height;
+            }
 
-    // 點擊按鈕選完相片後立刻觸發
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = () => resolve('');
+          img.src = e.target.result;
+        };
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // 綁定背景更換按鈕
+    document.getElementById('btnPickBg').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('directBgInput').click();
+    });
+
     document.getElementById('directBgInput').addEventListener('change', async function() {
       if (this.files && this.files[0]) {
-        const base64 = await readFileAsBase64(this.files[0], 900);
         try {
-          localStorage.setItem(BG_STORAGE_KEY, base64);
-          applyBg(base64);
+          const compressed = await compressImage(this.files[0], 720, 0.65);
+          if (compressed) {
+            localStorage.setItem(BG_STORAGE_KEY, compressed);
+            applyBg(compressed);
+            alert('✨ 桌布背景更換成功！');
+          }
         } catch (e) {
-          alert('這張照片稍微偏大，請選一張較小的照片！');
+          alert('儲存容量已滿，建議改用網路圖片網址喔！');
         }
       }
     });
 
-    // 恢復預設背景
-    function resetBgToDefault() {
-      localStorage.removeItem(BG_STORAGE_KEY);
+    document.getElementById('btnResetBg').addEventListener('click', function(e) {
+      e.preventDefault();
+      try {
+        localStorage.removeItem(BG_STORAGE_KEY);
+      } catch (e) {}
       applyBg(DEFAULT_BG);
-    }
+      alert('↺ 已恢復為預設飛天背景！');
+    });
 
     const defaultPlaceholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='200' viewBox='0 0 220 200'%3E%3Crect fill='%23FBF6F0' width='220' height='200'/%3E%3Ctext fill='%238D5B4C' font-size='15' font-family='sans-serif' font-weight='bold' x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle'%3E🍢 暫無商品圖片%3C/text%3E%3C/svg%3E";
 
-    // 處理新增商品
+    // 表單送出新增
     document.getElementById('itemForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -698,8 +745,8 @@
 
       if (fileInput.files && fileInput.files.length > 0) {
         for (let i = 0; i < fileInput.files.length; i++) {
-          const base64 = await readFileAsBase64(fileInput.files[i], 600);
-          images.push(base64);
+          const base64 = await compressImage(fileInput.files[i], 500, 0.7);
+          if (base64) images.push(base64);
         }
       }
 
@@ -729,34 +776,6 @@
       this.reset();
     });
 
-    // 圖片壓縮函數
-    function readFileAsBase64(file, maxWidth = 600) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const scaleSize = maxWidth / img.width;
-            
-            if (img.width > maxWidth) {
-              canvas.width = maxWidth;
-              canvas.height = img.height * scaleSize;
-            } else {
-              canvas.width = img.width;
-              canvas.height = img.height;
-            }
-
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', 0.8));
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
     function updateItemStatus(id, newStatus) {
       const item = items.find(i => i.id === id);
       if (!item) return;
@@ -782,8 +801,8 @@
           item.images = [];
         }
         for (let i = 0; i < inputElement.files.length; i++) {
-          const b64 = await readFileAsBase64(inputElement.files[i], 600);
-          item.images.push(b64);
+          const b64 = await compressImage(inputElement.files[i], 500, 0.7);
+          if (b64) item.images.push(b64);
         }
         renderItems();
       }
@@ -828,7 +847,11 @@
     }
 
     function saveAndRender() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      } catch (e) {
+        alert('儲存空間不足，建議刪除部分圖片或使用圖片網址！');
+      }
       renderItems();
     }
 
@@ -944,12 +967,18 @@
     }
 
     function escapeHtml(text) {
-      return text.replace(/[&<>"']/g, function(m) {
+      return String(text || '').replace(/[&<>"']/g, function(m) {
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
       });
     }
 
-    renderItems();
+    document.getElementById('filterStatus').addEventListener('change', renderItems);
+
+    // 頁面初始化
+    window.addEventListener('load', () => {
+      loadSavedBg();
+      renderItems();
+    });
   </script>
 </body>
 </html>
