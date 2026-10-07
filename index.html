@@ -18,9 +18,18 @@
       --border-color: #D8C2B2;
       --primary-text: #4A352F;
 
+      /* 狀態徽章色系 */
       --status-ordered: #E59866;
       --status-shipping: #5DADE2;
       --status-arrived: #48C78E;
+      
+      /* 團體湊單專屬色 */
+      --group-tag-bg: #EDE7F6;
+      --group-tag-color: #673AB7;
+      --unpaid-bg: #FFEBEE;
+      --unpaid-color: #D32F2F;
+      --paid-bg: #E8F5E9;
+      --paid-color: #2E7D32;
     }
 
     *, *::before, *::after {
@@ -98,7 +107,7 @@
       gap: 16px;
     }
 
-    /* 更換背景控制列：保證獨立可點擊 */
+    /* 更換背景控制列 */
     .bg-settings-bar {
       display: flex;
       justify-content: flex-end;
@@ -222,6 +231,18 @@
       min-height: 60px;
     }
 
+    /* 團體選項動態區塊 */
+    .group-fields {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      grid-column: 1 / -1;
+      background: #F8F4FD;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1.5px dashed #D1C4E9;
+    }
+
     .submit-btn {
       grid-column: 1 / -1;
       width: 100%;
@@ -240,6 +261,45 @@
 
     .submit-btn:active {
       opacity: 0.85;
+    }
+
+    /* 工具列與 Tab 分類切換 */
+    .toolbar-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .tab-pills {
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--marron-dark);
+      background: transparent;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--beer-gold);
+      color: white;
+      box-shadow: 0 2px 6px rgba(245, 175, 56, 0.3);
     }
 
     .toolbar {
@@ -340,6 +400,46 @@
       gap: 8px;
       flex-grow: 1;
       width: 100%;
+    }
+
+    /* 團體標籤列 */
+    .tag-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge-friend {
+      background: var(--group-tag-bg);
+      color: var(--group-tag-color);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-money {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+    }
+
+    .badge-money.unpaid {
+      background: var(--unpaid-bg);
+      color: var(--unpaid-color);
+    }
+
+    .badge-money.paid {
+      background: var(--paid-bg);
+      color: var(--paid-color);
     }
 
     .item-name {
@@ -524,6 +624,9 @@
         gap: 10px;
         width: 100%;
       }
+      .group-fields {
+        grid-template-columns: 1fr;
+      }
       .form-card {
         padding: 16px;
         border-radius: 18px;
@@ -541,8 +644,8 @@
   <div id="bg-layer"></div>
 
   <header>
-    <h1>⚔️討伐紀錄⚔️️</h1>
-    <div class="sub-banner">🍺 イサオ的討伐紀錄⁽͑ ⑉ •̀`ꈊ´•́ ⑉ ⁾̉  🍶 ハーッ…</div>
+    <h1>⚔️討伐紀錄⚔️</h1>
+    <div class="sub-banner">🍺 イサオ的討伐紀錄⁽͑ ⑉ •̀`ꈊ´•́ ⑉ ⁾̉ 和 🍶 ハーッ…</div>
   </header>
 
   <div class="container">
@@ -563,17 +666,40 @@
       <h2>✦ 討伐報酬💵</h2>
       <form id="itemForm" class="form-grid">
         <div class="form-group">
+          <label>討伐類別</label>
+          <select id="itemCategory" onchange="toggleGroupFields()">
+            <option value="personal">獨自討伐🗡️</option>
+            <option value="group">團體討伐👥</option>
+          </select>
+        </div>
+
+        <!-- 團體代買專屬欄位（預設隱藏） -->
+        <div id="groupFields" class="group-fields" style="display:none;">
+          <div class="form-group">
+            <label>委託朋友名字 *</label>
+            <input type="text" id="itemFriendName" placeholder="例：小八貓 / 鄰兵 / 同事A">
+          </div>
+          <div class="form-group">
+            <label>朋友付款狀態</label>
+            <select id="itemMoneyStatus">
+              <option value="unpaid">尚未收款 💸</option>
+              <option value="paid">款項已結清 🪙</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label>商品名稱 *</label>
-          <input type="text" id="itemName" placeholder="例：栗子饅頭" required>
+          <input type="text" id="itemName" placeholder="例：栗子秋刀魚鑰匙圈" required>
         </div>
 
         <div class="form-group">
           <label>商品價格 (NTD) *</label>
-          <input type="number" id="itemPrice" placeholder="例：420" min="0" required>
+          <input type="number" id="itemPrice" placeholder="例：560" min="0" required>
         </div>
 
         <div class="form-group">
-          <label>付款方式</label>
+          <label>我的付款方式</label>
           <select id="itemPayment">
             <option value="信用卡">信用卡</option>
             <option value="超商取貨付款">7-11 / 超商取貨付款</option>
@@ -588,7 +714,7 @@
           <label>貨物運送狀態</label>
           <select id="itemStatus">
             <option value="已討伐">已討伐🗡️</option>
-            <option value="討伐中">討伐中⛓️️</option>
+            <option value="討伐中">討伐中⛓️</option>
             <option value="討伐成功">討伐成功✨</option>
           </select>
         </div>
@@ -605,25 +731,33 @@
 
         <div class="form-group full-width">
           <label>備註紀錄（可隨時更改）</label>
-          <textarea id="itemNote" placeholder="例如：跟團買的、附送杯墊特典、預計下個月到貨..."></textarea>
+          <textarea id="itemNote" placeholder="例如：跟團買的、幫朋友搶到的特典、預計下個月到貨..."></textarea>
         </div>
 
         <button type="submit" class="submit-btn">納入討伐帳本 🍺 ハーッ！</button>
       </form>
     </section>
 
-    <!-- 工具列 -->
-    <div class="toolbar">
-      <div class="stats">
-        共 <span id="totalItems">0</span> 件戰利品
+    <!-- 工具列與 Tab 分類切換 -->
+    <div class="toolbar-container">
+      <div class="tab-pills">
+        <button type="button" class="tab-btn active" onclick="switchCategoryTab('all', this)">全部戰利品 📜</button>
+        <button type="button" class="tab-btn" onclick="switchCategoryTab('personal', this)">獨自討伐🗡️</button>
+        <button type="button" class="tab-btn" onclick="switchCategoryTab('group', this)">團體討伐👥</button>
       </div>
-      <div class="filter-group">
-        <select id="filterStatus">
-          <option value="全部">全部運送狀態</option>
-          <option value="已討伐">已討伐🗡️</option>
-          <option value="討伐中">討伐中⛓️</option>
-          <option value="討伐成功">討伐成功✨</option>
-        </select>
+
+      <div class="toolbar">
+        <div class="stats">
+          共 <span id="totalItems">0</span> 件戰利品
+        </div>
+        <div class="filter-group">
+          <select id="filterStatus" onchange="renderItems()">
+            <option value="全部">全部運送狀態</option>
+            <option value="已討伐">已討伐🗡️</option>
+            <option value="討伐中">討伐中⛓️</option>
+            <option value="討伐成功">討伐成功✨</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -635,7 +769,6 @@
     const STORAGE_KEY = 'chiikawatan_items_data';
     const BG_STORAGE_KEY = 'chiikawatan_custom_bg';
     
-    // 預設飛天吉伊卡哇 SVG 背景
     const DEFAULT_BG = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'%3E%3Crect width='100%25' height='100%25' fill='%23A4D6F4'/%3E%3Cg fill='%23FFFFFF' opacity='0.95'%3E%3Cellipse cx='280' cy='580' rx='130' ry='60'/%3E%3Cellipse cx='780' cy='520' rx='220' ry='90'/%3E%3Cellipse cx='710' cy='890' rx='280' ry='95'/%3E%3Cellipse cx='1380' cy='620' rx='140' ry='65'/%3E%3C/g%3E%3Cg transform='translate(450, 270)'%3E%3Crect x='-25' y='68' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 42 C165 65 190 70 178 95 C195 82 205 60 175 42 Z' fill='%23F49AA0' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='85' cy='6' rx='12' ry='12' fill='%23FFFFFF' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M45 52 Q 55 42 65 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M105 52 Q 115 42 125 52' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(680, 420)'%3E%3Crect x='-25' y='72' width='230' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M175 48 C165 70 192 75 180 100 C198 86 206 62 175 48 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='85' cy='65' rx='70' ry='62' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cpath d='M35 15 Q 85 45 135 15 C 120 -5 50 -5 35 15 Z' fill='%236BA8E5' stroke='%23382622' stroke-width='5'/%3E%3Cellipse cx='72' cy='-2' rx='12' ry='22' fill='%236BA8E5' stroke='%23382622' stroke-width='5' transform='rotate(-8 72 -2)'/%3E%3Cpath d='M48 56 Q 58 46 68 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M102 56 Q 112 46 122 56' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(930, 310)'%3E%3Crect x='-25' y='70' width='250' height='14' rx='7' fill='%23FFFFFF' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='65' rx='72' ry='62' fill='%23FFF4B8' stroke='%23382622' stroke-width='6'/%3E%3Cellipse cx='100' cy='2' rx='12' ry='12' fill='%23FFF4B8' stroke='%23382622' stroke-width='5'/%3E%3Cpath d='M62 54 Q 72 44 82 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M118 54 Q 128 44 138 54' fill='none' stroke='%23382622' stroke-width='6' stroke-linecap='round'/%3E%3Cg stroke='%23382622' stroke-width='5' stroke-linecap='round'%3E%3Cline x1='100' y1='-22' x2='100' y2='-10'/%3E%3Cline x1='80' y1='-16' x2='86' y2='-6'/%3E%3Cline x1='120' y1='-16' x2='114' y2='-6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")";
 
     let items = [];
@@ -645,7 +778,25 @@
       items = [];
     }
 
-    // 安全載入背景
+    let currentCategoryFilter = 'all';
+
+    function toggleGroupFields() {
+      const cat = document.getElementById('itemCategory').value;
+      const groupDiv = document.getElementById('groupFields');
+      if (cat === 'group') {
+        groupDiv.style.display = 'grid';
+      } else {
+        groupDiv.style.display = 'none';
+      }
+    }
+
+    function switchCategoryTab(cat, btn) {
+      currentCategoryFilter = cat;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderItems();
+    }
+
     function applyBg(url) {
       try {
         const bgLayer = document.getElementById('bg-layer');
@@ -667,7 +818,6 @@
       }
     }
 
-    // 高效壓縮：將背景壓縮為 700px / 0.7 質量，保證容量絕不超標
     function compressImage(file, maxWidth = 600, quality = 0.7) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -697,7 +847,6 @@
       });
     }
 
-    // 綁定背景更換按鈕
     document.getElementById('btnPickBg').addEventListener('click', function(e) {
       e.preventDefault();
       document.getElementById('directBgInput').click();
@@ -713,7 +862,7 @@
             alert('✨ 桌布背景更換成功！');
           }
         } catch (e) {
-          alert('儲存容量已滿，建議改用網路圖片網址喔！');
+          alert('儲存容量已滿，建議換小圖或使用圖片網址！');
         }
       }
     });
@@ -732,6 +881,10 @@
     // 表單送出新增
     document.getElementById('itemForm').addEventListener('submit', async function(e) {
       e.preventDefault();
+
+      const category = document.getElementById('itemCategory').value;
+      const friendName = document.getElementById('itemFriendName').value.trim();
+      const moneyStatus = document.getElementById('itemMoneyStatus').value;
 
       const name = document.getElementById('itemName').value;
       const price = parseFloat(document.getElementById('itemPrice').value) || 0;
@@ -761,6 +914,9 @@
 
       const newItem = {
         id: Date.now(),
+        category: category,
+        friendName: category === 'group' ? (friendName || '神秘酒友') : '',
+        moneyStatus: category === 'group' ? moneyStatus : 'paid',
         name,
         price,
         payment,
@@ -774,7 +930,15 @@
       items.unshift(newItem);
       saveAndRender();
       this.reset();
+      toggleGroupFields();
     });
+
+    function toggleMoneyStatus(id) {
+      const item = items.find(i => i.id === id);
+      if (!item) return;
+      item.moneyStatus = item.moneyStatus === 'paid' ? 'unpaid' : 'paid';
+      saveAndRender();
+    }
 
     function updateItemStatus(id, newStatus) {
       const item = items.find(i => i.id === id);
@@ -819,6 +983,15 @@
         const noteVal = document.getElementById(`edit-note-${id}`).value.trim();
         const newUrlVal = document.getElementById(`edit-new-url-${id}`).value.trim();
 
+        const catVal = document.getElementById(`edit-cat-${id}`).value;
+        item.category = catVal;
+        if (catVal === 'group') {
+          item.friendName = document.getElementById(`edit-friend-${id}`).value.trim() || '神秘酒友';
+          item.moneyStatus = document.getElementById(`edit-money-${id}`).value;
+        } else {
+          item.friendName = '';
+        }
+
         if (nameVal) item.name = nameVal;
         item.price = priceVal;
         item.payment = paymentVal;
@@ -842,15 +1015,17 @@
     }
 
     function deleteItem(id) {
-      items = items.filter(item => item.id !== id);
-      saveAndRender();
+      if (confirm('確定要刪除這筆討伐紀錄嗎？')) {
+        items = items.filter(item => item.id !== id);
+        saveAndRender();
+      }
     }
 
     function saveAndRender() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
       } catch (e) {
-        alert('儲存空間不足，建議刪除部分圖片或使用圖片網址！');
+        alert('儲存空間不足，建議使用圖片網址！');
       }
       renderItems();
     }
@@ -863,6 +1038,11 @@
       let count = 0;
 
       const filteredItems = items.filter(item => {
+        // Tab 分類篩選
+        if (currentCategoryFilter === 'personal' && item.category === 'group') return false;
+        if (currentCategoryFilter === 'group' && item.category !== 'group') return false;
+
+        // 運送狀態篩選
         if (filter === '全部') return true;
         return item.status === filter;
       });
@@ -873,6 +1053,8 @@
         if (!item.images || item.images.length === 0) {
           item.images = item.image ? [item.image] : [defaultPlaceholder];
         }
+
+        const isGroup = item.category === 'group';
 
         const card = document.createElement('div');
         card.className = 'item-card';
@@ -896,6 +1078,21 @@
 
           detailsHtml = `
             <div class="edit-mode-form">
+              <label>討伐類別：</label>
+              <select id="edit-cat-${item.id}">
+                <option value="personal" ${!isGroup ? 'selected' : ''}>獨自討伐🗡️</option>
+                <option value="group" ${isGroup ? 'selected' : ''}>團體討伐👥</option>
+              </select>
+
+              <label>委託朋友名稱（若是團體）：</label>
+              <input type="text" id="edit-friend-${item.id}" value="${escapeHtml(item.friendName || '')}">
+
+              <label>朋友付款狀態：</label>
+              <select id="edit-money-${item.id}">
+                <option value="unpaid" ${item.moneyStatus === 'unpaid' ? 'selected' : ''}>尚未收款 💸</option>
+                <option value="paid" ${item.moneyStatus === 'paid' ? 'selected' : ''}>款項已結清 🪙</option>
+              </select>
+
               <label>名稱：</label>
               <input type="text" id="edit-name-${item.id}" value="${escapeHtml(item.name)}">
 
@@ -926,7 +1123,17 @@
             </div>
           `;
         } else {
+          const groupTagHtml = isGroup ? `
+            <div class="tag-row">
+              <span class="badge-friend">👥 委託：${escapeHtml(item.friendName || '朋友')}</span>
+              <button type="button" class="badge-money ${item.moneyStatus === 'paid' ? 'paid' : 'unpaid'}" onclick="toggleMoneyStatus(${item.id})">
+                ${item.moneyStatus === 'paid' ? '🪙 已結清' : '💸 尚未收款 (點我換)'}
+              </button>
+            </div>
+          ` : '';
+
           detailsHtml = `
+            ${groupTagHtml}
             <div class="item-name">${escapeHtml(item.name)}</div>
             <div class="item-price">NT$ ${item.price.toLocaleString()}</div>
             <div class="item-info-row">
@@ -971,8 +1178,6 @@
         return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
       });
     }
-
-    document.getElementById('filterStatus').addEventListener('change', renderItems);
 
     // 頁面初始化
     window.addEventListener('load', () => {
